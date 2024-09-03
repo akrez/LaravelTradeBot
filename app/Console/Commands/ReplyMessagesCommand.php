@@ -47,7 +47,11 @@ class ReplyMessagesCommand extends Command
                     $text[] = date('Y-m-d H:i:s');
                     $text[] = 'https://bitpin.ir/coin/'.$coin->coin_name;
                     //
-                    $telegramApi->sendMessage($chat->chat_id, implode("\n", $text));
+                    $telegramApi->sendMessage(
+                        $chat->chat_id,
+                        implode("\n", $text),
+                        $telegramApi->getDefaultParameter()
+                    );
                 }
             }
         }

@@ -13,7 +13,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule
-            ->command('SyncMessagesCommand')
+            ->command('app:reply-messages')
+            ->name('ReplyMessagesCommand')
+            ->withoutOverlapping(1)
+            ->everyMinute();
+
+        $schedule
+            ->command('app:sync-messages')
             ->name('SyncMessagesCommand')
             ->withoutOverlapping(1)
             ->everySecond();

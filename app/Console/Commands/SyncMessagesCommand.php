@@ -90,7 +90,10 @@ class SyncMessagesCommand extends Command
             $telegramApi->sendMessage(
                 $chatId,
                 'GET: '.Coin::query()->where('chat_id', $chatId)->get()->implode('coin_name', ' '),
-                ['reply_to_message_id' => $message->message_json['message_id']]
+                $telegramApi->getDefaultParameter(
+                    null,
+                    $message->message_json['message_id']
+                )
             );
 
             return true;
@@ -100,8 +103,9 @@ class SyncMessagesCommand extends Command
             $telegramApi->sendMessage(
                 $chatId,
                 'Please choose of keyboard:',
-                ['reply_to_message_id' => $message->message_json['message_id']] + $this->getDefaultReplyMarkup(
-                    array_chunk($bitpinApi->getMarketsKeyboard('IRT'), 3)
+                $telegramApi->getDefaultParameter(
+                    array_chunk($bitpinApi->getMarketsKeyboard('IRT'), 3),
+                    $message->message_json['message_id']
                 )
             );
 
@@ -112,8 +116,9 @@ class SyncMessagesCommand extends Command
             $telegramApi->sendMessage(
                 $chatId,
                 'Please choose of keyboard:',
-                ['reply_to_message_id' => $message->message_json['message_id']] + $this->getDefaultReplyMarkup(
-                    array_chunk($bitpinApi->getMarketsKeyboard('USDT'), 3)
+                $telegramApi->getDefaultParameter(
+                    array_chunk($bitpinApi->getMarketsKeyboard('USDT'), 3),
+                    $message->message_json['message_id']
                 )
             );
 
@@ -129,8 +134,9 @@ class SyncMessagesCommand extends Command
             $telegramApi->sendMessage(
                 $chatId,
                 'Please choose of keyboard:',
-                ['reply_to_message_id' => $message->message_json['message_id']] + $this->getDefaultReplyMarkup(
-                    array_chunk($markets, 3)
+                $telegramApi->getDefaultParameter(
+                    array_chunk($markets, 3),
+                    $message->message_json['message_id']
                 )
             );
 
@@ -152,7 +158,10 @@ class SyncMessagesCommand extends Command
             $telegramApi->sendMessage(
                 $chatId,
                 implode(' ', $markets),
-                ['reply_to_message_id' => $message->message_json['message_id']]
+                $telegramApi->getDefaultParameter(
+                    null,
+                    $message->message_json['message_id']
+                )
             );
 
             return true;
@@ -173,23 +182,15 @@ class SyncMessagesCommand extends Command
             $telegramApi->sendMessage(
                 $chatId,
                 implode(' ', $markets),
-                ['reply_to_message_id' => $message->message_json['message_id']],
+                $telegramApi->getDefaultParameter(
+                    null,
+                    $message->message_json['message_id']
+                )
             );
 
             return true;
         }
 
         return false;
-    }
-
-    public function getDefaultReplyMarkup($keyboard)
-    {
-        return [
-            'reply_markup' => json_encode([
-                'resize_keyboard' => true,
-                'one_time_keyboard' => true,
-                'keyboard' => $keyboard,
-            ]),
-        ];
     }
 }

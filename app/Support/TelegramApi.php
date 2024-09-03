@@ -32,6 +32,29 @@ class TelegramApi
         return $response->json();
     }
 
+    public function getDefaultParameter($keyboard = null, $replyToMessageId = null)
+    {
+        $parameters = [
+            'link_preview_options' => json_encode([
+                'is_disabled' => true,
+            ]),
+        ];
+
+        if ($keyboard) {
+            $parameters['reply_markup'] = json_encode([
+                'resize_keyboard' => true,
+                'one_time_keyboard' => true,
+                'keyboard' => $keyboard,
+            ]);
+        }
+
+        if ($replyToMessageId) {
+            $parameters['reply_to_message_id'] = $replyToMessageId;
+        }
+
+        return $parameters;
+    }
+
     public function getMe()
     {
         return $this->sendPostForm('getMe');
