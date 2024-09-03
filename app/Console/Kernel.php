@@ -13,8 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule
-            ->command('RunSchedulerCommand')
-            ->name('RunSchedulerCommand')
+            ->command('SyncMessagesCommand')
+            ->name('SyncMessagesCommand')
             ->withoutOverlapping(1)
             ->everySecond();
     }

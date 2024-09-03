@@ -9,21 +9,21 @@ use App\Support\TelegramApi;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 
-class RunSchedulerCommand extends Command
+class SyncMessagesCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'run-scheduler-command';
+    protected $signature = 'app:sync-messages';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Run scheduler command';
+    protected $description = 'Sync Messages';
 
     /**
      * Execute the console command.
