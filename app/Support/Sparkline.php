@@ -15,8 +15,8 @@ class Sparkline
 
     public function generate($data, $w, $h, $line = '000000', $fill = 'ffffff', $back = 'ffffff')
     {
-        $w = floor(max(50, min(800, $w)));
-        $h = floor(max(20, min(800, $h)));
+        $w = floor($w);
+        $h = floor($h);
         $t = 2.5;
         $s = 4;
 
