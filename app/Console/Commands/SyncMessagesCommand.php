@@ -40,11 +40,9 @@ class SyncMessagesCommand extends Command
         }
     }
 
-    public function syncMessages(string $token): array
+    public function syncMessages(string $token)
     {
-        $messages = [];
-        //
-        $maxId = Message::withTrashed()->max('id');
+        $maxId = Message::withTrashed()->max('message_id');
         $response = (new TelegramApi($token))->getUpdates($maxId + 1);
         $results = Arr::get($response, 'result', []);
         //
@@ -52,16 +50,16 @@ class SyncMessagesCommand extends Command
             $content = ($result['message'] ?? $result['edited_message']);
             $id = $result['update_id'];
             //
-            $messages[] = Message::withTrashed()->firstOrCreate([
-                'id' => $id,
-            ], [
-                'chat_id' => ($content['chat']['id'] ?? null),
-                'message_text' => ($content['text'] ?? null),
-                'message_json' => $content,
-            ]);
+            $message = Message::withTrashed()->where('message_id', $id)->first();
+            if (! $message) {
+                Message::create([
+                    'message_id' => $id,
+                    'chat_id' => ($content['chat']['id'] ?? null),
+                    'message_text' => ($content['text'] ?? null),
+                    'message_json' => $content,
+                ]);
+            }
         }
-
-        return $messages;
     }
 
     public function parseMessage($token, Message $message)

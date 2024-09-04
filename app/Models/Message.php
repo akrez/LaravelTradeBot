@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Class Message
  *
  * @property int $id
+ * @property int|null $message_id
  * @property int|null $chat_id
  * @property array|null $message_json
  * @property string|null $message_text
@@ -23,8 +24,6 @@ class Message extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'messages';
-
-    public $incrementing = false;
 
     protected $casts = [
         'message_json' => 'array',

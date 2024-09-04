@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Message
+ * Class Coin
  *
  * @property int $id
  * @property int|null $chat_id
