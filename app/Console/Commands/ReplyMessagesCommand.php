@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Coin;
 use App\Support\BitpinApi;
+use App\Support\Sparkline;
 use App\Support\TelegramApi;
 use Illuminate\Console\Command;
 
@@ -35,29 +36,54 @@ class ReplyMessagesCommand extends Command
         $coins = Coin::query()->groupBy('coin_id')->get();
         foreach ($coins as $coin) {
             $hours = $bitpinApi->getCoin($coin->coin_id, 'hour');
-            $minMaxResult = $this->calcMinMaxMessage($hours, $coin->coin_id, $coin->coin_name);
+            $minMaxResult = $this->calcMinMaxMessage($hours);
             if ($minMaxResult) {
                 $chats = Coin::query()->where('coin_id', $coin->coin_id)->get();
+                $text = implode("\n", [
+                    ($minMaxResult['is_min'] ? '🔴' : '🟢').' #'.$coin->coin_name,
+                    '⬆️ '.$minMaxResult['max_hour']['price'],
+                    ($minMaxResult['is_min'] ? '➖' : '➕').' '.($minMaxResult['max_hour']['price'] - $minMaxResult['min_hour']['price']),
+                    '⬇️ '.$minMaxResult['min_hour']['price'],
+                    date('Y-m-d H:i:s'),
+                    'https://bitpin.ir/coin/'.$coin->coin_name,
+                ]);
+                $gdImage = (new Sparkline)->generate(
+                    array_values($minMaxResult['chart_data']),
+                    720,
+                    240,
+                    ($minMaxResult['is_min'] ? 'e54a5c' : '2bc890')
+                );
+                //
                 foreach ($chats as $chat) {
-                    $text = [];
-                    $text[] = ($minMaxResult['is_min'] ? '🔴' : '🟢').' #'.$coin->coin_name;
-                    $text[] = '⬆️ '.$minMaxResult['max_hour']['price'];
-                    $text[] = ($minMaxResult['is_min'] ? '➖' : '➕').' '.($minMaxResult['max_hour']['price'] - $minMaxResult['min_hour']['price']);
-                    $text[] = '⬇️ '.$minMaxResult['min_hour']['price'];
-                    $text[] = date('Y-m-d H:i:s');
-                    $text[] = 'https://bitpin.ir/coin/'.$coin->coin_name;
-                    //
-                    $telegramApi->sendMessage(
-                        $chat->chat_id,
-                        implode("\n", $text),
-                        $telegramApi->getDefaultParameter()
-                    );
+                    try {
+                        $telegramApi->sendPhoto(
+                            $chat->chat_id,
+                            $this->readStreamAsPng($gdImage),
+                            $text,
+                            $telegramApi->getDefaultParameter()
+                        );
+                    } catch (\Throwable $th) {
+                        $telegramApi->sendMessage(
+                            $chat->chat_id,
+                            $text,
+                            $telegramApi->getDefaultParameter()
+                        );
+                    }
                 }
             }
         }
     }
 
-    public function calcMinMaxMessage($hours, $coinKey, $coinName)
+    public function readStreamAsPng($image)
+    {
+        $stream = fopen('php://temp', 'r+');
+        imagepng($image, $stream);
+        rewind($stream);
+
+        return stream_get_contents($stream);
+    }
+
+    public function calcMinMaxMessage($hours)
     {
         $chartData = [];
         $hasMin = false;

@@ -101,6 +101,36 @@ class TelegramApi
         ));
     }
 
+    public function sendPhoto($chatId, $photo, $caption = '', $optionalParameters = [])
+    {
+        $requiredParameters = [
+            'chat_id' => $chatId,
+        ];
+
+        if ($caption) {
+            $optionalParameters['caption'] = $caption;
+        }
+
+        $data = array_replace_recursive(
+            $optionalParameters,
+            $requiredParameters
+        );
+
+        $url = $this->getUrl('sendPhoto');
+
+        $response = Http::timeout(5)
+            ->connectTimeout(5)
+            ->attach('photo', $photo, 'photo.jpg')
+            ->post($url, $data)
+            ->json();
+
+        if (0) {
+            info([$url, $data, $response->body()]);
+        }
+
+        return $response->json();
+    }
+
     public function sendMediaGroup($chatId, $mediaArray, $optionalParameters = [])
     {
         $requiredParameters = [
